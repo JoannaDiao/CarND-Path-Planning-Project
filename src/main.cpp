@@ -151,20 +151,12 @@ int main() {
               vehicle_in_front |= check_car_s > car_s && check_car_s - car_s < 30;
             }
             else if (car_lane - lane == -1){
-              double vx = sensor_fusion[i][3];
-              double vy = sensor_fusion[i][4];
-              double check_speed = sqrt(vx*vx + vy*vy);
-              double check_car_s = sensor_fusion[i][5];
-              
-              // Calculate the check_car's future location
-              check_car_s += (double)prev_size * 0.02 * check_speed;
-              // If the check_car is within 30 meters in front, reduce ref_vel so that we don't hit it
-              // Car left
+              // Car is to the left of ego vehicle
               vehicle_left |= car_s - 30 < check_car_s && car_s + 30 > check_car_s;
             }
             else if (car_lane - lane == 1)
             {
-              // Car right
+              // Car is to the right of ego vehicle
               vehicle_right |= car_s - 30 < check_car_s && car_s + 30 > check_car_s;
             }
           }
@@ -189,21 +181,23 @@ int main() {
               speed_diff -= MAX_ACC;
             }
           }
-          else
-          {
-            if (lane != 1)
-            { // if we are not on the center lane.
-              if ((lane == 0 && !vehicle_right) || (lane == 2 && !vehicle_left)){
-                //ref_vel = 29.5;
-                too_close = true;
-                lane = 1; // Back to center.
-              } 
-            }
-            if (ref_vel < MAX_SPEED)
-            {
-              speed_diff += MAX_ACC;
-            }
+          else if (ref_vel < 49.5) {
+            speed_diff += MAX_ACC;
           }
+          // {
+          //   if (lane != 1)
+          //   { // if we are not on the center lane.
+          //     if ((lane == 0 && !vehicle_right) || (lane == 2 && !vehicle_left)){
+          //       //ref_vel = 29.5;
+          //       too_close = true;
+          //       lane = 1; // Back to center.
+          //     } 
+          //   }
+          //   if (ref_vel < MAX_SPEED)
+          //   {
+          //     speed_diff += MAX_ACC;
+          //   }
+          // }
         
           // Create a list of evenly spaced waypoints 30m apart
           // Interpolate those waypoints later with spline and fill it in with more points
